@@ -4,22 +4,6 @@
 
 import Foundation
 
-extension FeedImage {
-	init(json: [String: Any]) throws {
-		guard let id = json["image_id"] as? String,
-			  let uuid = UUID(uuidString: id),
-			  let urlString = json["image_url"] as? String,
-			  let url = URL(string: urlString)
-		else {
-			throw NSError()
-		}
-		self.id = uuid
-		self.description = json["image_desc"] as? String
-		self.location = json["image_loc"] as? String
-		self.url = url
-	}
-}
-
 public final class RemoteFeedLoader: FeedLoader {
 	private let url: URL
 	private let client: HTTPClient
@@ -44,14 +28,7 @@ public final class RemoteFeedLoader: FeedLoader {
 					return
 				}
 				do {
-					guard let json = try JSONSerialization.jsonObject(with: data) as? [String : Any],
-						  let items = json["items"] as? [[String : Any]]
-					else {
-						completion(.failure(Error.invalidData))
-						return
-					}
-					let images = try items.map(FeedImage.init)
-					completion(.success(images))
+					completion(.success(try FeedImageResponse.decode(from: data, keyPath: \.items)))
 				} catch {
 					completion(.failure(Error.invalidData))
 				}
