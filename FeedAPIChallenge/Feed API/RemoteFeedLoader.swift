@@ -14,8 +14,8 @@ extension FeedImage {
 			throw NSError()
 		}
 		self.id = uuid
-		self.description = json[""] as? String
-		self.location = json[""] as? String
+		self.description = json["image_desc"] as? String
+		self.location = json["image_loc"] as? String
 		self.url = url
 	}
 }
