@@ -4,6 +4,22 @@
 
 import Foundation
 
+extension FeedImage {
+	init(json: [String: Any]) throws {
+		guard let id = json["image_id"] as? String,
+			  let uuid = UUID(uuidString: id),
+			  let urlString = json["image_url"] as? String,
+			  let url = URL(string: urlString)
+		else {
+			throw NSError()
+		}
+		self.id = uuid
+		self.description = json[""] as? String
+		self.location = json[""] as? String
+		self.url = url
+	}
+}
+
 public final class RemoteFeedLoader: FeedLoader {
 	private let url: URL
 	private let client: HTTPClient
@@ -33,7 +49,8 @@ public final class RemoteFeedLoader: FeedLoader {
 						completion(.failure(Error.invalidData))
 						return
 					}
-					
+					let images = try items.map(FeedImage.init)
+					completion(.success(images))
 				} catch {
 					completion(.failure(Error.invalidData))
 				}
